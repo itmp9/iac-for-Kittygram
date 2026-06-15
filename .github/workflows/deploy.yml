@@ -79,6 +79,21 @@ jobs:
           terraform_version: 1.12.2
           terraform_wrapper: false
 
+      - name: Configure Terraform provider mirror
+        run: |
+          cat > "$RUNNER_TEMP/terraformrc" <<'EOF'
+          provider_installation {
+            network_mirror {
+              url     = "https://terraform-mirror.yandexcloud.net/"
+              include = ["registry.terraform.io/yandex-cloud/yandex"]
+            }
+            direct {
+              exclude = ["registry.terraform.io/yandex-cloud/yandex"]
+            }
+          }
+          EOF
+          echo "TF_CLI_CONFIG_FILE=$RUNNER_TEMP/terraformrc" >> "$GITHUB_ENV"
+
       - name: Read VM address
         id: terraform
         working-directory: ./infra
