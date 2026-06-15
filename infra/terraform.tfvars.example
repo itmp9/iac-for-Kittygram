@@ -1,0 +1,4 @@
+folder_id     = "b1gqa7ukktg6ukk8vdbh"
+zone          = "ru-central1-a"
+ssh_public_key = "ssh-ed25519 AAAA..."
+gateway_port  = 9000
