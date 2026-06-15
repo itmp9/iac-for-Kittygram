@@ -1,33 +1,40 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:13-alpine
+    restart: unless-stopped
     env_file:
       - .env
     volumes:
       - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   backend:
-    image: kittygram_backend:latest
+    image: ${DOCKER_USERNAME}/kittygram_backend:latest
+    restart: unless-stopped
     env_file:
       - .env
     volumes:
       - static_volume:/app/collected_static
       - media_volume:/app/media
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   frontend:
-    image: kittygram_frontend:latest
+    image: ${DOCKER_USERNAME}/kittygram_frontend:latest
     volumes:
       - static_volume:/static_files
     entrypoint: sh -c "cp -r /app/build/. /static_files/ && exit 0"
 
   gateway:
-    image: kittygram_gateway:latest
+    image: ${DOCKER_USERNAME}/kittygram_gateway:latest
+    restart: unless-stopped
     ports:
-      - "80:80"
+      - "${GATEWAY_PORT:-9000}:80"
     volumes:
       - static_volume:/static
       - media_volume:/media
