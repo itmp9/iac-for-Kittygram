@@ -80,4 +80,8 @@ resource "yandex_compute_instance" "kittygram" {
       ssh_public_key = var.ssh_public_key
     })
   }
+
+  lifecycle {
+    ignore_changes = [boot_disk[0].initialize_params[0].image_id]
+  }
 }
